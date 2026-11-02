@@ -9,9 +9,7 @@ library(geodata)
 library(cowplot)
 
 # Load data ---------------------------------------------------------------
-df <- read.csv(
-    "C:/Users/acer/Documents/Latihan R/30 Day Map Challenge/2026/01_Points/olive_outlets.csv"
-    )
+df <- read.csv("olive_outlets.csv")
 
 # Load fonts --------------------------------------------------------------
 
@@ -36,7 +34,7 @@ df_sf <- st_as_sf(
   crs = 4326
 )
 
-# 2. DIY Province -------------------------------------------------
+# 2. DIY Province ---------------------------------------------------------
 
 indo <- gadm(country = "IDN", level = 2, path = tempdir()) |> st_as_sf()
 diy <- indo |> 
@@ -55,7 +53,7 @@ grid_jawa <- st_make_grid(jawa, cellsize = 5000, square = TRUE)
 grid_jawa <- st_sf(grid_id = seq_along(grid_jawa), geometry = grid_jawa)
 
 # Data wrangling ----------------------------------------------------------
-# 1. Java Island
+# 1. Java Island ----------------------------------------------------------
 df_grid_jawa <- st_join(df_sf_proj, grid_jawa, join = st_within)
 
 grid_summary_jawa <- df_grid_jawa |>
@@ -67,11 +65,11 @@ grid_summary_jawa <- df_grid_jawa |>
 
 grid_points_jawa <- grid_jawa |> inner_join(grid_summary_jawa, by = "grid_id") |> st_centroid()
 
-# 2. DIY Province
+# 2. DIY Province ---------------------------------------------------------
 df_sf_diy <- st_filter(df_sf_proj, diy)
 
-# Graph data -------------------------------------------------------------
-# 1. Title, Subtitle, and Subheadings Block ----------------------------------------------
+# Graph data --------------------------------------------------------------
+# 1. Title, Subtitle, and Subheadings Block -------------------------------
 
 title_block <- ggplot() +
   labs(
@@ -114,7 +112,7 @@ subheading_jawa <- ggplot() +
     plot.background = element_rect(fill = bg_col, color = NA)  
       )
 
-# 2. DIY Province Map (Exact Points) -------------------------------------
+# 2. DIY Province Map (Exact Points) --------------------------------------
 
 plt_diy <- ggplot() +
   geom_sf(data = diy, fill = "#fff3ddff", color = "#7c2d12", linewidth = 0.5) +
@@ -126,7 +124,7 @@ plt_diy <- ggplot() +
     plot.background = element_rect(fill = bg_col, color = NA)
   )
 
-# 3. Java Island Map (5-km Grid Points + Legend) ------------------------
+# 3. Java Island Map (5-km Grid Points + Legend) -------------------------
 
 plt_jawa <- ggplot() +
   geom_sf(data = jawa, fill = "#fff3ddff", color = "#7c2d12", linewidth = 0.3) +
@@ -156,7 +154,7 @@ plt_jawa <- ggplot() +
     plot.background = element_rect(fill = bg_col, color = NA)
   )
 
-# 4. Caption Block -------------------------------------------------------
+# 4. Caption Block --------------------------------------------------------
 
 caption_block <- ggplot() +
   labs(caption = "#30DayMapChallenge 2026 · Day 1: Points\nSource: carikulinerindonesia.com · Graphic: Bayu Prahara") +
@@ -179,14 +177,3 @@ final_plot <- plot_grid(
     rel_heights = c(0.15, 0.03, 0.42, 0.03, 0.38, 0.04)
 ) +
   theme(plot.background = element_rect(fill = bg_col, color = NA))
-
-# 6. Save Exactly 3000 x 3500 Pixels -------------------------------------
-
-ggsave(
-  "C:/Users/acer/Documents/Latihan R/30 Day Map Challenge/2026/01_Points/01_Points_Olive.png",
-  plot   = final_plot,
-  width  = 3000,
-  height = 5500,
-  units  = "px",
-  dpi    = 300
-)
